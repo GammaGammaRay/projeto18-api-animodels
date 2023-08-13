@@ -1,7 +1,14 @@
 import { db } from "../database/db.connection.js"
 
 export async function insertAnimalDB(userId, animalData) {
-  const { title, description, breedId, mainPhotoId, avaliable } = body
+  const {
+    animalName,
+    animalDescription,
+    hirePrice,
+    photoMain,
+    contact,g
+    available,
+  } = animalData
 
   const { rows } = await db.query(
     'SELECT sessions."userId" FROM sessions WHERE token = $1;',
@@ -10,11 +17,11 @@ export async function insertAnimalDB(userId, animalData) {
 
   return db.query(
     `
-    INSERT INTO catalogue (title, description, "breedId", "userId", "mainPhotoId", avaliable) 
-    VALUES ($1, $2, $3, $4, $5, $6) 
-    RETURNING id
+    INSERT INTO animals ("animalName", "animalDescription", "hirePrice", "photoMain", contact, available, "createdAt") 
+    VALUES ($1, $2, $3, $4, $5, $6, NOW()) 
+    RETURNING "animalId"
     ;`,
-    [title, description, breedId, rows[0].userId, mainPhotoId, avaliable]
+    [animalName, animalDescription, hirePrice, photoMain, contact, available]
   )
 }
 
@@ -41,7 +48,7 @@ export async function getAnimalByIdDB(animalId) {
   )
 }
 
-export async function toggleAnimalAvailability(animalId) {
+export async function toggleAnimalAvailabilityDB(animalId) {
   try {
     const { rows } = await db.query(
       `SELECT available FROM animals WHERE "animalId" = $1`,
@@ -62,5 +69,14 @@ export async function toggleAnimalAvailability(animalId) {
     return result.rows[0]
   } catch (error) {
     throw new Error(`Error toggling animal availability: ${error.message}`)
+  }
+}
+
+export async function getAnimalListDB() {
+  try {
+    const { rows } = await db.query(`SELECT * FROM animals`)
+    return rows
+  } catch (error) {
+    throw new Error(`Error getting animal list: ${error.message}`)
   }
 }
