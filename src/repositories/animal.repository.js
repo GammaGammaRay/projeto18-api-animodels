@@ -6,7 +6,7 @@ export async function insertAnimalDB(userId, animalData) {
     animalDescription,
     hirePrice,
     photoMain,
-    contact,g
+    contact,
     available,
   } = animalData
 
