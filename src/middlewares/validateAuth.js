@@ -8,7 +8,7 @@ export async function validateAuth(req, res, next) {
     return res.status(401).send({ message: "Invalid token" })
 
   try {
-    const { rowCount } = await selectSessionDB(token)
+    const { rowCount } = await getSessionDB(token)
     if (rowCount === 0)
       return res.status(401).send({ message: "Session not found" })
 

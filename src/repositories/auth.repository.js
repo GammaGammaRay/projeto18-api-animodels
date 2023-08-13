@@ -1,19 +1,19 @@
 import { db } from "../database/db.connection.js"
 
-export function createUserDB(body, password) {
-  const { name, email, cellphone, cpf, imageUrl } = body
+export function createUserDB(body, hash) {
+  const { userName, email, tel, cpf, userImage } = body;
   return db.query(
     `
     INSERT INTO users 
-    (name, email, cellphone, cpf, "imageUrl", password) 
+    ("userName", "email", "tel", "cpf", "userImage", "hash") 
     VALUES ($1, $2, $3, $4, $5, $6)
     ;`,
-    [name, email, cellphone, cpf, imageUrl, password]
-  )
+    [userName, email, tel, cpf, userImage, hash]
+  );
 }
 
 export function getUserDB(email) {
-  return db.query("SELECT id, password FROM users WHERE email = $1;", [email])
+  return db.query(`SELECT "userId", hash FROM users WHERE email = $1;`, [email])
 }
 
 export const getSessionDB = (token) => {
@@ -28,10 +28,10 @@ export const createSessionDB = async (token, id) => {
 
   return db.query(
     `
-    SELECT users.name 
+    SELECT users."userId" 
     FROM sessions 
       JOIN users
-      ON users.id = sessions."userId"
+      ON users."userId" = sessions."userId"
     WHERE token = $1
   ;`,
     [token]

@@ -8,6 +8,6 @@ const authRouter = Router()
 
 authRouter.post("/signup", validateSchema(userSchema), signUp)
 authRouter.post("/signin", validateSchema(authSchema), signIn)
-authRouter.post("/signout", validateSchema(authSchema), signOut)
+authRouter.post("/signout", signOut)
 
 export default authRouter
