@@ -22,22 +22,6 @@ export const signUp = async (req, res) => {
     res.status(500).send(err)
   }
 }
-// export const signUp = async (req, res) => {
-//   const { password, confirmPassword } = req.body
-
-//   if (password !== confirmPassword) {
-//     return res.status(422).send({ message: "The passwords do not match" })
-//   }
-
-//   try {
-//     await createUserDB(req.body, bcrypt.hashSync(password, 10))
-//     res.sendStatus(201)
-//   } catch ({ code, detail }) {
-//     if (code === "23505") return res.status(409).send({ message: detail })
-//     console.log(req.body)
-//     res.status(500).send({ message: detail })
-//   }
-// }
 
 export const signIn = async (req, res) => {
   const { email, password } = req.body
@@ -53,7 +37,7 @@ export const signIn = async (req, res) => {
     console.log(rows)
     const token = uuid()
     const user = await createSessionDB(token, rows[0].userId)
-    res.sendStatus(200)
+    res.status(200).send({rows, token})
   } catch (err) {
     console.log(err)
     res.status(500).send(err)

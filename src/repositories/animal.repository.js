@@ -1,6 +1,7 @@
 import { db } from "../database/db.connection.js"
 
-export async function insertAnimalDB(token, animalData) {
+export async function insertAnimalDB(animalData, token) {
+  console.log(animalData)
   const { animalName, description, hirePrice, photoMain, contact, available } =
     animalData
 
@@ -15,26 +16,28 @@ export async function insertAnimalDB(token, animalData) {
 }
 
 export async function getAnimalByIdDB(animalId) {
-  return db.query(
+  const animal = await db.query(
     `
-  SELECT 
-    catalogue.id, catalogue.title, catalogue.description, catalogue.avaliable, 
-    breeds.name AS "breedName",
-    (SELECT photos.url FROM photos WHERE photos.id = catalogue."mainPhotoId") AS "imageUrl",
-    JSON_BUILD_OBJECT(
-      'name', users.name,
-      'cellphone', users.cellphone,
-      'imageUrl', users."imageUrl"
-    ) AS "userData"
-  FROM breeds
-    JOIN catalogue 
-    ON catalogue."breedId" = breeds.id 
-    JOIN users 
-    ON catalogue."userId" = users.id
-  WHERE catalogue.id = $1
-;`,
+    SELECT 
+  animals."animalId", 
+  animals."animalName", 
+  animals.description,
+  animals."photoMain", 
+  animals."hirePrice",
+  animals.available, 
+  JSON_BUILD_OBJECT(
+    'userName', users."userName",
+    'tel', users.tel,
+    'userImage', users."userImage"
+  ) AS "userData"
+FROM animals
+JOIN users 
+  ON users."userId" = animals."authorId"
+WHERE animals."animalId" = $1;`,
     [animalId]
   )
+  // console.log(animal.rows)
+  return animal
 }
 
 export async function toggleAnimalAvailabilityDB(animalId) {
@@ -62,5 +65,24 @@ export async function toggleAnimalAvailabilityDB(animalId) {
 }
 
 export async function getAnimalListDB() {
-  return (db.query(`SELECT * FROM animals`))
+  return db.query(`SELECT * FROM animals`)
+}
+
+export const putAnimal = async (req, res) => {
+  const { authorization } = req.headers
+  const { id } = req.params
+  try {
+    const { rowCount } = await updateCatalogueById(
+      id,
+      authorization.replace("Bearer ", "")
+    )
+    if (rowCount === 0)
+      return res
+        .status(400)
+        .send("Model not found, or you do not have authorization to change it")
+
+    res.sendStatus(204)
+  } catch ({ detail }) {
+    res.status(500).send({ message: detail })
+  }
 }

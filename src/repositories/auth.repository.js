@@ -13,7 +13,7 @@ export function createUserDB(body, hash) {
 }
 
 export function getUserDB(email) {
-  return db.query(`SELECT "userId", hash FROM users WHERE email = $1;`, [email])
+  return db.query(`SELECT "userId", hash, "userName", "userImage", tel FROM users WHERE email = $1;`, [email])
 }
 
 export const getSessionDB = (token) => {
