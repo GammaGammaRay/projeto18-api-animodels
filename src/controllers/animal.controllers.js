@@ -1,4 +1,3 @@
-import { db } from "../database/db.connection.js"
 import {
   getAnimalByIdDB,
   insertAnimalDB,
@@ -13,24 +12,19 @@ export async function getAnimal(req, res) {
     const { rows, rowCount } = await getAnimalByIdDB(parseInt(id))
 
     if (rowCount === 0) res.sendStatus(404)
-
+    console.log(rows[0])
     res.send(rows[0])
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
-
   }
 }
 
 export async function createAnimal(req, res) {
-  // const { photos } = req.body
   const token = req.headers.authorization.replace("Bearer ", "")
-  // console.log(token)
   try {
     await insertAnimalDB(req.body, token)
     console.log(req.body)
-
-    // await insertPhotos(photos, rows[0].id)
 
     res.sendStatus(201)
   } catch (err) {
@@ -54,9 +48,21 @@ export async function toggleAnimalAvailability(req, res) {
   }
 }
 
-export async function getAnimalList(req,res) {
+export async function getAnimalList(req, res) {
   try {
     const animalList = await getAnimalListDB()
+    console.log("List: ", animalList.rows)
+    console.log("GET animal list")
+    res.send(animalList.rows)
+  } catch (error) {
+    throw new Error(`Error getting animal list: ${error.message}`)
+  }
+}
+
+export async function getAnimalListByUser(req, res) {
+  const { userId } = req.body
+  try {
+    const animalList = await getAnimalListByUserDB()
     console.log("List: ", animalList.rows)
     console.log("GET animal list")
     res.send(animalList.rows)

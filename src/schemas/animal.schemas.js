@@ -7,6 +7,7 @@ export const animalSchema = Joi.object({
     hirePrice: Joi.number().required(),
     contact: Joi.string().max(50),
     available: Joi.bool(),
+    hide: Joi.bool().required(),
     authorId: Joi.number().integer().required(),
 });
 

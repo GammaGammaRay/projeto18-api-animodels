@@ -2,7 +2,7 @@ import { db } from "../database/db.connection.js"
 
 export async function insertAnimalDB(animalData, token) {
   console.log(animalData)
-  const { animalName, description, hirePrice, photoMain, contact, available } =
+  const { animalName, description, hirePrice, photoMain, contact, available, hide } =
     animalData
 
   return db.query(
@@ -24,7 +24,8 @@ export async function getAnimalByIdDB(animalId) {
   animals.description,
   animals."photoMain", 
   animals."hirePrice",
-  animals.available, 
+  animals.available,
+  animals.hide, 
   JSON_BUILD_OBJECT(
     'userName', users."userName",
     'tel', users.tel,
@@ -72,7 +73,7 @@ export const putAnimal = async (req, res) => {
   const { authorization } = req.headers
   const { id } = req.params
   try {
-    const { rowCount } = await updateCatalogueById(
+    const { rowCount } = await updateAnimal(
       id,
       authorization.replace("Bearer ", "")
     )
@@ -85,4 +86,26 @@ export const putAnimal = async (req, res) => {
   } catch ({ detail }) {
     res.status(500).send({ message: detail })
   }
+}
+
+export async function getAnimalsByUserDB(userId) {
+  const userAnimals = db.query(
+    `SELECT 
+  animals."animalId", 
+  animals."animalName", 
+  animals.description, 
+  animals."hirePrice", 
+  animals."photoMain", 
+  animals.contact, 
+  animals.available, 
+  animals.hide,
+  animals."createdAt"
+FROM animals
+JOIN users ON users."userId" = animals."authorId"
+WHERE users."userId" = $1;
+`,
+    [userId]
+  )
+
+  return userAnimals
 }
