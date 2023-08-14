@@ -13,7 +13,8 @@ export async function validateAuth(req, res, next) {
       return res.status(401).send({ message: "Session not found" })
 
     next()
-  } catch ({ message }) {
-    res.status(500).send(message)
+  } catch (err) {
+    console.log(err)
+    res.status(500)
   }
 }
