@@ -22,12 +22,10 @@ export async function getAnimal(req, res) {
 
 export async function createAnimal(req, res) {
   // const { photos } = req.body
-  const { authorization } = req.headers
+  const token = req.headers.authorization.replace("Bearer ", "")
+  console.log(token)
   try {
-    const { rows } = await insertAnimalDB(
-      req.body,
-      authorization.replace("Bearer ", "")
-    )
+    await insertAnimalDB(token, req.body)
 
     // await insertPhotos(photos, rows[0].id)
 
@@ -38,7 +36,7 @@ export async function createAnimal(req, res) {
       return res.status(404).send({ message: detail })
     }
     console.log(err)
-    res.status(500).send(err)
+    res.sendStatus(500)
   }
 }
 
@@ -53,10 +51,11 @@ export async function toggleAnimalAvailability(req, res) {
   }
 }
 
-export async function getAnimalList() {
+export async function getAnimalList(req,res) {
   try {
-    const animalList = getAnimalListDB()
-    return animalList
+    const animalList = await getAnimalListDB()
+    console.log("List: ", animalList.rows)
+    res.send(animalList.rows)
   } catch (error) {
     throw new Error(`Error getting animal list: ${error.message}`)
   }

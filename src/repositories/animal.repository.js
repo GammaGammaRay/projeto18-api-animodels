@@ -1,27 +1,16 @@
 import { db } from "../database/db.connection.js"
 
-export async function insertAnimalDB(userId, animalData) {
-  const {
-    animalName,
-    animalDescription,
-    hirePrice,
-    photoMain,
-    contact,
-    available,
-  } = animalData
-
-  const { rows } = await db.query(
-    'SELECT sessions."userId" FROM sessions WHERE token = $1;',
-    [token]
-  )
+export async function insertAnimalDB(token, animalData) {
+  const { animalName, description, hirePrice, photoMain, contact, available } =
+    animalData
 
   return db.query(
     `
-    INSERT INTO animals ("animalName", "animalDescription", "hirePrice", "photoMain", contact, available, "createdAt") 
-    VALUES ($1, $2, $3, $4, $5, $6, NOW()) 
+    INSERT INTO animals ("animalName", "description", "hirePrice", "photoMain", contact, "authorId", available) 
+    VALUES ($1, $2, $3, $4, $5, (SELECT "userId" FROM sessions WHERE token = $6), $7) 
     RETURNING "animalId"
     ;`,
-    [animalName, animalDescription, hirePrice, photoMain, contact, available]
+    [animalName, description, hirePrice, photoMain, contact, token, available]
   )
 }
 
@@ -73,10 +62,5 @@ export async function toggleAnimalAvailabilityDB(animalId) {
 }
 
 export async function getAnimalListDB() {
-  try {
-    const { rows } = await db.query(`SELECT * FROM animals`)
-    return rows
-  } catch (error) {
-    throw new Error(`Error getting animal list: ${error.message}`)
-  }
+  return (db.query(`SELECT * FROM animals`))
 }
